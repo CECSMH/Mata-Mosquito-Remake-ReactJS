@@ -1,0 +1,19 @@
+.bar{
+    height: var(--height-prop);
+    padding: calc(var(--height-prop) * 0.1);
+    background-color: var(--back-bar-color);
+    display: flex;
+    border-radius: 5px;
+    width: var(--width-prop);
+}
+
+.bar::before{
+    content: "";
+    width: calc(var(--percent) * 1%);
+    border-radius: 5px;
+    background-color: hsl( 
+        var(--bar-color-degree),
+        var(--bar-color-saturation),
+        var(--bar-color-lightness));
+    transition: all 0.2s ease;
+}
