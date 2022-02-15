@@ -7,7 +7,8 @@ import Bars from "../../components/bars/index.js";
 import hpImg from "../../assets/img/HPH.png";
 import starImg from "../../assets/img/Star.png";
 import flyArr from "../../utils/flyArr.js";
-import { comboReducer, countReducer } from "../../game/reducers.js";
+import puArr from "../../utils/puArr.js"
+import { comboReducer } from "../../game/reducers.js";
 import { timer } from "../../game/utilities.js";
 import { spawn, pointsMeter, damageMeter } from "../../game/fly_works.js";
 import barControl from "../../game/barControl.js";
@@ -21,6 +22,7 @@ if (game_session) diffIndex = diffIndex[game_session.difficulty];
 let disappearTimeout = {};
 let hpLife = { bar: 100, count: 0 };
 let streakI = { bar: 0, count: 1 };
+let combo = [];
 let scoreT = 0;
 
 
@@ -36,6 +38,16 @@ function flyButtonReader(e) {
     let fri = Number(flyId.slice(-1)), size = Number(flyId.slice(-3, -2));
     return { id, fri, size };
 };
+
+
+function gameClock(minutes, seconds) {
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    reactDom.render((<span>{`${minutes}:${seconds}`}</span>),
+        document.querySelector('#timer'));
+};
+
 
 
 export default function Game() {
@@ -54,13 +66,20 @@ export default function Game() {
     window.onload = () => {
         setBgi(game_session.background);
 
-        let inter = timer(30, '#timer', 'progressive')
-        respawn(respawn_interval, 0)
-        /* setTimeout(() => {
-            for (var i = 0; i <= 3; i++) {
-                respawn(respawn_interval, i)
-            }
-        }, 1000); */
+        let inter = timer(30, 'progressive', gameClock)
+
+
+        firstSpawn(750)
+    };
+
+
+    function firstSpawn(delay) {
+        let id = 0;
+        let interval = setInterval(() => {
+            respawn(respawn_interval, id);
+            if (id === fly_qtd) clearInterval(interval);
+            id++;
+        }, delay);
     };
 
 
@@ -97,7 +116,7 @@ export default function Game() {
 
     function flyClick(e) {
         if (e.target.tagName === "BUTTON") return;
-        
+
         let { fri, size, id } = flyButtonReader(e);
         let points = pointsMeter(size, 1);
 
@@ -107,11 +126,6 @@ export default function Game() {
         streakI = barControl(streakI, points, 4);
         setScore(scoreT);
         setStreak(streakI);
-
-
-
-
-
 
         komboDispatch({ type: 'increment', value: fri })
         // console.log(kombo.seck)
@@ -176,18 +190,17 @@ export default function Game() {
                     <span id="timer"></span>
                 </div>
 
-                <span>{kombo.seck.map((el, i) => (
-                    <img key={i} src={flyArr[el]} alt="fly" style={{ width: "30px" }} />
-                ))}
+                <span>
+                    {kombo.seck.map((el, i) => (
+                        <img key={i} src={flyArr[el]} alt="fly" style={{ width: "30px" }} />
+                    ))}
                 </span>
 
-                <button onClick={() => { hpLife = barControl(hpLife, 20, lifes_max); setHp(hpLife) }}>+</button>
+                <button onClick={() => { komboDispatch({ type: 'reset'}) }}>teste</button>
 
-                <button onClick={() => { hpLife = barControl(hpLife, -20); setHp(hpLife) }}>-</button>
-                <span>bar: {hp.bar}, count: {hp.count}</span>
             </section>
             <section className="power-up-display">
-                    kkk
+
             </section>
             <Background bgI={bgi} />
         </>
